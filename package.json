@@ -1,0 +1,35 @@
+{
+  "name": "visitor-hub",
+  "version": "1.0.0",
+  "description": "School visitor management: kiosk check-in/out with child-protection safeguarding acknowledgment, emailed receipts, and an admin dashboard.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/db/seed.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "visitor-management",
+    "school",
+    "safeguarding",
+    "child-protection",
+    "kiosk",
+    "uae"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.8.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^9.0.1"
+  }
+}

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Visitor Check-in</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230f766e'/%3E%3Cpath d='M28 52l16 16 30-34' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="appbar">
+    <img id="logo" alt="" hidden />
+    <span class="brand" id="brand">Visitor Hub</span>
+    <a class="tag" href="/admin/">Staff&nbsp;login</a>
+  </header>
+
+  <main class="stage">
+    <!-- HOME ────────────────────────────────────────────────────────────── -->
+    <section class="card" id="home">
+      <div class="eyebrow">Welcome</div>
+      <h1 id="welcome">Welcome to our school</h1>
+      <p class="lead">Please sign in when you arrive, and sign out before you leave.</p>
+      <div class="choices">
+        <button class="choice" data-go="ci-details">
+          <div class="icon">📝</div>
+          <div class="title">Check&nbsp;In</div>
+          <div class="sub">I am arriving for a visit</div>
+        </button>
+        <button class="choice" data-go="co-lookup">
+          <div class="icon">👋</div>
+          <div class="title">Check&nbsp;Out</div>
+          <div class="sub">I am leaving the school</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- CHECK-IN STEP 1: details ──────────────────────────────────────────── -->
+    <section class="card hidden" id="ci-details">
+      <div class="steps"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
+      <div class="eyebrow">Check in · Step 1 of 3</div>
+      <h1>Your details</h1>
+      <p class="lead">Tell us who you are so we can keep everyone safe.</p>
+      <div class="alert error" id="ci-details-alert" hidden></div>
+
+      <div class="field" data-for="visitorName">
+        <label for="visitorName">Full name</label>
+        <input type="text" id="visitorName" autocomplete="name" placeholder="e.g. Brandon Abaki" />
+        <div class="error"></div>
+      </div>
+
+      <div class="field">
+        <label>Identification</label>
+        <div class="segment" id="idTypeSeg">
+          <button type="button" data-type="emirates_id" class="active">Emirates ID</button>
+          <button type="button" data-type="passport">Passport</button>
+        </div>
+      </div>
+
+      <div class="field" data-for="idNumber">
+        <label for="idNumber" id="idNumberLabel">Emirates ID number</label>
+        <input type="text" id="idNumber" inputmode="numeric" placeholder="784-XXXX-XXXXXXX-X" />
+        <div class="hint" id="idNumberHint">15 digits, starting with 784.</div>
+        <div class="error"></div>
+      </div>
+
+      <div class="field hidden" data-for="nationality" id="nationalityField">
+        <label for="nationality">Nationality</label>
+        <input type="text" id="nationality" placeholder="e.g. United Kingdom" />
+        <div class="error"></div>
+      </div>
+
+      <div class="row">
+        <div class="field" data-for="email">
+          <label for="email">Email</label>
+          <input type="email" id="email" autocomplete="email" placeholder="you@example.com" />
+          <div class="hint">We email your visit confirmation here.</div>
+          <div class="error"></div>
+        </div>
+        <div class="field" data-for="phone">
+          <label for="phone">Phone <span class="muted">(optional)</span></label>
+          <input type="tel" id="phone" autocomplete="tel" placeholder="05X XXX XXXX" />
+          <div class="error"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" data-go="home">Cancel</button>
+        <button class="btn grow" id="ci-details-next">Continue</button>
+      </div>
+    </section>
+
+    <!-- CHECK-IN STEP 2: host ─────────────────────────────────────────────── -->
+    <section class="card hidden" id="ci-host">
+      <div class="steps"><span class="dot done"></span><span class="dot active"></span><span class="dot"></span></div>
+      <div class="eyebrow">Check in · Step 2 of 3</div>
+      <h1>Who are you here to see?</h1>
+      <p class="lead">Choose the staff member you are visiting.</p>
+      <div class="alert error" id="ci-host-alert" hidden></div>
+
+      <div class="field" data-for="hostStaffId">
+        <label for="hostSearch">Staff member</label>
+        <input type="search" id="hostSearch" placeholder="Search by name or department…" />
+        <select id="hostStaffId" size="6" style="margin-top:10px;"></select>
+        <div class="error"></div>
+      </div>
+
+      <div class="field" data-for="purpose">
+        <label for="purpose">Purpose of visit <span class="muted">(optional)</span></label>
+        <input type="text" id="purpose" placeholder="e.g. Parent–teacher meeting" />
+        <div class="error"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" data-go="ci-details">Back</button>
+        <button class="btn grow" id="ci-host-next">Continue</button>
+      </div>
+    </section>
+
+    <!-- CHECK-IN STEP 3: policy ───────────────────────────────────────────── -->
+    <section class="card hidden" id="ci-policy">
+      <div class="steps"><span class="dot done"></span><span class="dot done"></span><span class="dot active"></span></div>
+      <div class="eyebrow">Check in · Step 3 of 3</div>
+      <h1 id="policyTitle">Safeguarding acknowledgment</h1>
+      <p class="lead">Please read the school's child-protection policy and confirm your agreement.</p>
+      <div class="alert error" id="ci-policy-alert" hidden></div>
+
+      <div class="policy-box" id="policyBody" tabindex="0">Loading…</div>
+
+      <label class="ack">
+        <input type="checkbox" id="acknowledged" />
+        <span>I have read, understood, and agree to abide by this Child Protection &amp; Safeguarding policy for the duration of my visit.</span>
+      </label>
+
+      <div class="actions">
+        <button class="btn secondary" data-go="ci-host">Back</button>
+        <button class="btn grow" id="ci-submit" disabled>Submit &amp; check in</button>
+      </div>
+    </section>
+
+    <!-- CHECK-IN DONE ─────────────────────────────────────────────────────── -->
+    <section class="card hidden" id="ci-done">
+      <div class="result">
+        <div class="badge">✓</div>
+        <h1 id="ci-done-title">You're checked in</h1>
+        <p class="lead" id="ci-done-msg"></p>
+        <div class="summary" id="ci-done-summary"></div>
+        <p class="muted mt">Please collect your visitor badge from reception, and remember to sign out when you leave.</p>
+        <div class="actions" style="justify-content:center;">
+          <button class="btn" data-go="home">Done</button>
+        </div>
+        <p class="muted" id="ci-auto"></p>
+      </div>
+    </section>
+
+    <!-- CHECK-OUT LOOKUP ──────────────────────────────────────────────────── -->
+    <section class="card hidden" id="co-lookup">
+      <div class="eyebrow">Check out</div>
+      <h1>Signing out</h1>
+      <p class="lead">Enter the Emirates ID or passport number you checked in with.</p>
+      <div class="alert error" id="co-lookup-alert" hidden></div>
+      <div class="field" data-for="coId">
+        <label for="coId">Emirates ID / passport number</label>
+        <input type="text" id="coId" placeholder="784-XXXX-XXXXXXX-X" />
+        <div class="error"></div>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" data-go="home">Cancel</button>
+        <button class="btn grow" id="co-lookup-next">Find my visit</button>
+      </div>
+    </section>
+
+    <!-- CHECK-OUT CONFIRM ─────────────────────────────────────────────────── -->
+    <section class="card hidden" id="co-confirm">
+      <div class="eyebrow">Check out</div>
+      <h1>Confirm sign-out</h1>
+      <div class="alert error" id="co-confirm-alert" hidden></div>
+      <div class="summary" id="co-summary"></div>
+      <div class="actions">
+        <button class="btn secondary" data-go="co-lookup">Back</button>
+        <button class="btn grow" id="co-confirm-btn">Confirm sign-out</button>
+      </div>
+    </section>
+
+    <!-- CHECK-OUT DONE ────────────────────────────────────────────────────── -->
+    <section class="card hidden" id="co-done">
+      <div class="result bye">
+        <div class="badge">👋</div>
+        <h1>You're signed out</h1>
+        <p class="lead" id="co-done-msg">Thank you for visiting. Have a safe journey.</p>
+        <div class="actions" style="justify-content:center;">
+          <button class="btn" data-go="home">Done</button>
+        </div>
+        <p class="muted" id="co-auto"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/kiosk.js"></script>
+</body>
+</html>
