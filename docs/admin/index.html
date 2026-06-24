@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visitor Hub · Admin</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230f766e'/%3E%3Cpath d='M28 52l16 16 30-34' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div class="demo-banner">
+    <strong>Live demo</strong> — sign in with <code>admin@example.com</code> / <code>changeme123</code>.
+    <a href="../">← Visitor kiosk</a>
+    <a href="#" id="demo-reset">Reset demo</a>
+  </div>
+  <header class="appbar">
+    <span class="brand" id="brand">Visitor Hub</span>
+    <span class="tag">Admin</span>
+    <button class="btn ghost sm hidden" id="logoutBtn" style="margin-left:12px;color:#fff;">Log out</button>
+  </header>
+
+  <main class="stage">
+    <!-- LOGIN ─────────────────────────────────────────────────────────────── -->
+    <section class="card hidden" id="login" style="max-width:440px;">
+      <div class="eyebrow">Staff access</div>
+      <h1>Sign in</h1>
+      <p class="lead">Reception &amp; administrator dashboard.</p>
+      <div class="alert error" id="login-alert" hidden></div>
+      <div class="field" data-for="email">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" autocomplete="username" />
+        <div class="error"></div>
+      </div>
+      <div class="field" data-for="password">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" />
+        <div class="error"></div>
+      </div>
+      <div class="actions">
+        <button class="btn block" id="loginBtn">Sign in</button>
+      </div>
+      <p class="muted center mt"><a href="../">← Back to visitor kiosk</a></p>
+    </section>
+
+    <!-- DASHBOARD ─────────────────────────────────────────────────────────── -->
+    <section class="card wide hidden" id="dash">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div>
+          <div class="eyebrow">Dashboard</div>
+          <h1 style="margin:2px 0 0;">Visitor management</h1>
+        </div>
+        <div style="margin-left:auto;" class="muted" id="who"></div>
+      </div>
+
+      <div class="stat-grid" id="stats">
+        <div class="stat"><div class="n" id="stat-onsite">–</div><div class="l">On site now</div></div>
+        <div class="stat"><div class="n" id="stat-today">–</div><div class="l">Checked in today</div></div>
+        <div class="stat"><div class="n" id="stat-week">–</div><div class="l">Last 7 days</div></div>
+      </div>
+
+      <div class="tabs">
+        <button data-tab="onsite" class="active">On site now</button>
+        <button data-tab="history">History</button>
+        <button data-tab="staff">Staff</button>
+        <button data-tab="policy">Policy</button>
+        <button data-tab="settings">Settings</button>
+      </div>
+
+      <div class="alert ok" id="dash-toast" hidden></div>
+
+      <!-- On site -->
+      <div class="tabpane" id="pane-onsite">
+        <div class="toolbar">
+          <strong id="onsite-count"></strong>
+          <button class="btn secondary sm" id="onsite-refresh" style="margin-left:auto;">Refresh</button>
+        </div>
+        <div id="onsite-table"></div>
+      </div>
+
+      <!-- History -->
+      <div class="tabpane hidden" id="pane-history">
+        <div class="toolbar">
+          <input type="search" class="grow" id="h-q" placeholder="Search name, host, email, ID…" />
+          <select id="h-status">
+            <option value="">All statuses</option>
+            <option value="checked_in">On site</option>
+            <option value="checked_out">Signed out</option>
+          </select>
+          <input type="date" id="h-from" title="From date" />
+          <input type="date" id="h-to" title="To date" />
+          <button class="btn secondary sm" id="h-apply">Apply</button>
+          <button class="btn secondary sm" id="h-csv">Export CSV</button>
+        </div>
+        <div id="history-table"></div>
+      </div>
+
+      <!-- Staff -->
+      <div class="tabpane hidden" id="pane-staff">
+        <div class="toolbar">
+          <strong>Staff members</strong>
+          <button class="btn sm" id="staff-add" style="margin-left:auto;">+ Add staff</button>
+        </div>
+        <div id="staff-table"></div>
+      </div>
+
+      <!-- Policy -->
+      <div class="tabpane hidden" id="pane-policy">
+        <p class="muted">Edit the safeguarding text shown to visitors at check-in. Publishing creates a new version; each visit records exactly which version was acknowledged.</p>
+        <div class="alert error" id="policy-alert" hidden></div>
+        <div class="field">
+          <label for="policy-title">Policy title</label>
+          <input type="text" id="policy-title" />
+        </div>
+        <div class="field">
+          <label for="policy-body">Policy body (HTML allowed)</label>
+          <textarea id="policy-body"></textarea>
+          <div class="hint">Tip: use &lt;h3&gt; for section headings and &lt;ul&gt;&lt;li&gt; for bullet rules.</div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="policy-publish">Publish new version</button>
+          <span class="muted" id="policy-version" style="align-self:center;"></span>
+        </div>
+        <h2 style="margin-top:24px;">Version history</h2>
+        <div id="policy-history"></div>
+      </div>
+
+      <!-- Settings -->
+      <div class="tabpane hidden" id="pane-settings">
+        <h2>Data retention</h2>
+        <p class="muted">Remove visit records older than a chosen number of days, in line with data-minimisation requirements. The server also purges automatically each day using the <code>RETENTION_DAYS</code> setting.</p>
+        <div class="alert ok" id="purge-toast" hidden></div>
+        <div class="toolbar">
+          <label for="purge-days">Delete visits older than</label>
+          <input type="text" id="purge-days" inputmode="numeric" style="width:90px;" placeholder="365" />
+          <span>days</span>
+          <button class="btn danger sm" id="purge-btn">Purge now</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal-root"></div>
+  <script src="../js/mock-api.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

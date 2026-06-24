@@ -56,6 +56,24 @@ No bundler, no framework lock-in, no cloud dependency — `npm install && npm st
 
 ---
 
+## Live demo (GitHub Pages)
+
+The `docs/` folder is a **static, browser-only preview** of the app for GitHub
+Pages. It reuses the real UI (same HTML/CSS/JS) but swaps the backend for an
+in-browser mock (`docs/js/mock-api.js`), so the whole flow is clickable with no
+server. **The real backend in `src/` is untouched** — `docs/` is purely additive.
+
+To publish it: repo **Settings → Pages → Build and deployment → Deploy from a
+branch →** pick this branch and the **`/docs`** folder → Save. The site appears at
+`https://<owner>.github.io/visitor-hub/` (admin at `/visitor-hub/admin/`, sign in
+with `admin@example.com` / `changeme123`).
+
+> The demo stores data only in your browser (it resets with the "Reset demo"
+> link), sends no email, and must not be used with real visitor data. It is a
+> visual/UX preview only — the production app needs the Node server below.
+
+---
+
 ## Quick start
 
 ```bash
