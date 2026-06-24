@@ -87,12 +87,11 @@ export function formatEmiratesId(value) {
   return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7, 14)}-${d.slice(14)}`;
 }
 
-/** Mask for list views: keep the 784 prefix and final 3 digits visible. */
+/** Mask for list views: show only the final 2 digits (784 prefix is constant). */
 export function maskEmiratesId(value) {
   const d = normalizeEmiratesId(value);
   if (d.length !== LENGTH) return '•••';
-  const last3 = d.slice(-3);
-  return `784-••••-••••${last3.slice(0, 1)}-${last3.slice(1)}`;
+  return `784-••••-•••••••-${d.slice(-2)}`;
 }
 
 export default validateEmiratesId;

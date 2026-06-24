@@ -1,4 +1,5 @@
 import { getDb } from '../db/index.js';
+import { sanitizePolicyHtml } from '../util/html.js';
 
 /** The currently active safeguarding policy shown at check-in. */
 export function getActivePolicy(db = getDb()) {
@@ -18,13 +19,14 @@ export function listPolicies(db = getDb()) {
  * policy; all others are deactivated. Returns the new policy row.
  */
 export function publishPolicy({ title, body }, db = getDb()) {
+  const safeBody = sanitizePolicyHtml(body);
   const tx = db.transaction(() => {
     const maxVersion = db.prepare('SELECT COALESCE(MAX(version), 0) AS v FROM policies').get().v;
     const nextVersion = maxVersion + 1;
     db.prepare('UPDATE policies SET active = 0').run();
     const info = db
       .prepare('INSERT INTO policies (version, title, body, active) VALUES (?, ?, ?, 1)')
-      .run(nextVersion, title, body);
+      .run(nextVersion, title, safeBody);
     return getPolicy(info.lastInsertRowid, db);
   });
   return tx();

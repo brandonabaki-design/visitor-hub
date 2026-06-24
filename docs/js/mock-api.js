@@ -80,8 +80,7 @@ abide by this policy for the duration of your visit.</em></p>`.trim();
     }
     const d = normEid(v);
     if (d.length !== 15) return '•••';
-    const l3 = d.slice(-3);
-    return `784-••••-••••${l3[0]}-${l3.slice(1)}`;
+    return `784-••••-•••••••-${d.slice(-2)}`;
   }
 
   // ── state ───────────────────────────────────────────────────────────────────
@@ -128,7 +127,7 @@ abide by this policy for the duration of your visit.</em></p>`.trim();
   function summary(v) {
     return {
       id: v.id, visitorName: v.visitor_name, hostName: v.host_name, purpose: v.purpose,
-      idType: v.id_type, idLabel: idLabel(v.id_type), idNumber: formatId(v.id_type, v.id_number),
+      idType: v.id_type, idLabel: idLabel(v.id_type), idNumber: maskId(v.id_type, v.id_number),
       checkInAt: v.check_in_at, checkOutAt: v.check_out_at, status: v.status, receiptStatus: v.receipt_status,
     };
   }

@@ -108,15 +108,22 @@ export function buildCheckoutHtml(visit) {
 }
 
 async function deliver({ to, subject, html }, tag) {
-  // Preview transport: write the message to disk instead of sending.
+  // Preview transport: write the message to disk instead of sending. Files
+  // contain PII, so they are owner-only (0600) and the dir is owner-only (0700).
+  // Preview mode is for development; use EMAIL_TRANSPORT=smtp in production.
   if (config.email.transport !== 'smtp') {
-    fs.mkdirSync(config.email.previewDir, { recursive: true });
-    const safe = String(to).replace(/[^a-z0-9@._-]/gi, '_');
-    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const file = path.join(config.email.previewDir, `${stamp}_${tag}_${safe}.html`);
-    const header = `<!-- To: ${to} | Subject: ${subject} | ${new Date().toISOString()} -->\n`;
-    fs.writeFileSync(file, header + html, 'utf8');
-    return { status: 'preview', detail: file };
+    try {
+      fs.mkdirSync(config.email.previewDir, { recursive: true, mode: 0o700 });
+      const safe = String(to).replace(/[^a-z0-9@._-]/gi, '_');
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const file = path.join(config.email.previewDir, `${stamp}_${tag}_${safe}.html`);
+      const header = `<!-- To: ${to} | Subject: ${subject} | ${new Date().toISOString()} -->\n`;
+      fs.writeFileSync(file, header + html, { encoding: 'utf8', mode: 0o600 });
+      return { status: 'preview', detail: file };
+    } catch (err) {
+      // Never let an email/preview failure crash a check-in or check-out.
+      return { status: 'failed', detail: err.message };
+    }
   }
 
   // Real SMTP send.

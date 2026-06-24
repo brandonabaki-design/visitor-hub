@@ -235,15 +235,16 @@ async function viewVisit(id, reload) {
       <button class="btn secondary" data-m="resend">Resend receipt</button>
       <button class="btn ghost" data-m="close">Close</button>
     </div>`);
-  $('[data-m="close"]').addEventListener('click', closeModal);
-  const resend = $('[data-m="resend"]');
+  const modal = $('#modal-root');
+  $('[data-m="close"]', modal).addEventListener('click', closeModal);
+  const resend = $('[data-m="resend"]', modal);
   if (resend) resend.addEventListener('click', async () => {
     resend.disabled = true; resend.textContent = 'Sending…';
     const r = await api(`/api/admin/visits/${id}/resend-receipt`, { method: 'POST' });
     closeModal();
     toast(r.ok ? `Receipt ${r.data.receiptStatus}.` : (r.data.error || 'Could not resend.'));
   });
-  const co = $('[data-m="checkout"]');
+  const co = $('[data-m="checkout"]', modal);
   if (co) co.addEventListener('click', async () => {
     const r = await api(`/api/admin/visits/${id}/checkout`, { method: 'POST' });
     closeModal();

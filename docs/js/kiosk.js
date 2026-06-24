@@ -141,6 +141,7 @@ function validateDetails() {
   }
   if (!d.email) errors.email = 'Please enter your email.';
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) errors.email = 'Please enter a valid email.';
+  if (d.phone && d.phone.length > 40) errors.phone = 'Phone must be 40 characters or fewer.';
 
   if (Object.keys(errors).length) { applyServerErrors(scope, errors); return null; }
   state.details = d;
@@ -152,6 +153,7 @@ function renderStaff(filter = '') {
   const term = filter.toLowerCase();
   const matches = state.staff.filter((s) =>
     !term || s.name.toLowerCase().includes(term) || (s.department || '').toLowerCase().includes(term));
+  sel.disabled = matches.length === 0;
   sel.innerHTML = matches
     .map((s) => `<option value="${s.id}">${escapeHtml(s.name)}${s.department ? ' — ' + escapeHtml(s.department) : ''}</option>`)
     .join('') || '<option disabled>No matching staff</option>';
@@ -293,8 +295,10 @@ function resetIdle() {
     idleTimer = setTimeout(() => show('home'), 120000);
   }
 }
+// Any interaction resets the idle countdown; resetIdle() itself only arms the
+// timer when the user is away from the home screen.
 ['click', 'keydown', 'input', 'touchstart'].forEach((ev) =>
-  document.addEventListener(ev, () => { if (!$('#home').classList.contains('hidden')) resetIdle(); }, { passive: true }));
+  document.addEventListener(ev, () => resetIdle(), { passive: true }));
 
 let autoTimer;
 function autoReturn(elId, seconds) {

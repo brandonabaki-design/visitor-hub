@@ -196,6 +196,21 @@ data-protection conventions:
   per a configurable window (data-minimisation under the UAE PDPL).
 - **Hardening** — Helmet security headers + CSP, request rate limiting, bcrypt
   password hashing, httpOnly signed-cookie sessions, server-side validation.
+  Admin sessions are re-checked against the database on every request, and the
+  app **refuses to start in production without an explicit `SESSION_SECRET`**.
+- **Policy HTML is sanitised** on publish (scripts, event handlers, iframes and
+  `javascript:` URLs are stripped) as defense-in-depth on top of the CSP.
+- **No-store** responses and **masked IDs** on the shared kiosk screen.
+
+**Known trade-offs (by design for an internal kiosk):**
+- The check-out lookup returns a visitor's name/host to anyone who enters their
+  (15-digit) ID number. This is inherent to self-service sign-out at a staffed
+  reception and is rate-limited; enable an extra verification step (email/PIN)
+  if your threat model needs it.
+- State-changing admin requests rely on the `SameSite=lax` session cookie +
+  JSON-only/no-CORS rather than CSRF tokens. Authenticated admins can view full
+  ID numbers in the detail view and CSV export. For a public-facing deployment,
+  add CSRF tokens, audit logging, and shorter session TTLs.
 
 > ⚠️ **Legal references are a starting point, not legal advice.** The seeded
 > safeguarding text references Wadeema's Law (Federal Law No. 3 of 2016) and the

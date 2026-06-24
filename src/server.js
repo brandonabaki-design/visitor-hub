@@ -4,6 +4,16 @@ import { ensureSeed } from './db/seed.js';
 import { purgeOlderThan } from './services/visits.js';
 import config from './config.js';
 
+// Fail fast on insecure production configuration.
+if (config.env === 'production') {
+  if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET must be set to a strong, random value in production.');
+  }
+  if (!process.env.ADMIN_PASSWORD) {
+    console.warn('[security] ADMIN_PASSWORD is not set — the default password is in use. Set ADMIN_PASSWORD before going live.');
+  }
+}
+
 // Initialise database + seed before accepting traffic.
 getDb();
 const seed = ensureSeed();

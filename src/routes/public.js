@@ -9,10 +9,16 @@ import {
   updateReceiptStatus,
 } from '../services/visits.js';
 import { sendCheckInReceipt, sendCheckOutNotice } from '../services/email.js';
-import { validateIdentity, formatIdNumber, idLabel } from '../util/identity.js';
+import { validateIdentity, maskIdNumber, idLabel } from '../util/identity.js';
 import { validateFields, str } from '../util/validation.js';
 
 const router = Router();
+
+// Sensitive visitor data — never cache kiosk API responses.
+router.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
 
 // Generous limit: a single kiosk/tablet shares one IP across many visitors.
 const kioskLimiter = rateLimit({
@@ -33,7 +39,8 @@ function visitSummary(visit) {
     purpose: visit.purpose,
     idType: visit.id_type,
     idLabel: idLabel(visit.id_type),
-    idNumber: formatIdNumber(visit.id_type, visit.id_number),
+    // Masked for the shared kiosk screen — the visitor entered it themselves.
+    idNumber: maskIdNumber(visit.id_type, visit.id_number),
     checkInAt: visit.check_in_at,
     checkOutAt: visit.check_out_at,
     status: visit.status,

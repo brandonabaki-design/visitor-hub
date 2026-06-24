@@ -137,8 +137,17 @@ test('admin: publishing a new policy version increments and activates it', async
   const login = await req('POST', '/api/auth/login', { body: { email: 'admin@example.com', password: 'changeme123' } });
   const cookie = login.setCookie.split(';')[0];
   const before = (await req('GET', '/api/policy')).data.policy.version;
-  const pub = await req('POST', '/api/admin/policies', { cookie, body: { title: 'Updated', body: '<p>New rules.</p>' } });
+  const pub = await req('POST', '/api/admin/policies', { cookie, body: { title: 'Updated', body: '<p>New rules.</p><script>alert(1)</script>' } });
   assert.equal(pub.status, 201);
   assert.equal(pub.data.policy.version, before + 1);
+  // The script tag is stripped by sanitization before storage.
+  assert.ok(!/script/i.test(pub.data.policy.body));
+  assert.ok(pub.data.policy.body.includes('<p>New rules.</p>'));
   assert.equal((await req('GET', '/api/policy')).data.policy.version, before + 1);
+});
+
+test('admin: routes reject a forged token for a non-existent admin', async () => {
+  // A syntactically valid cookie that isn't a real session must still 401.
+  const r = await req('GET', '/api/admin/stats', { cookie: 'vh_session=not-a-real-token' });
+  assert.equal(r.status, 401);
 });
