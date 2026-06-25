@@ -118,7 +118,7 @@ All configuration is via environment variables (see `.env.example`). Highlights:
 | Variable           | Default                       | Purpose                                            |
 |--------------------|-------------------------------|----------------------------------------------------|
 | `PORT` / `HOST`    | `3000` / `0.0.0.0`            | Where the server listens                           |
-| `SCHOOL_NAME`      | `Our School`                 | Branding on the kiosk and in emails                |
+| `SCHOOL_NAME`      | `American International School in Abu Dhabi` | Branding on the kiosk and in emails |
 | `SCHOOL_LOGO_URL`  | —                            | Optional logo shown in the top bar                 |
 | `SUPPORT_EMAIL`    | `reception@example.com`      | Contact shown in email footers                     |
 | `DATABASE_PATH`    | `./data/visitor-hub.db`      | SQLite file location                               |

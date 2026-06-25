@@ -19,6 +19,7 @@ import {
 import { listPolicies, getActivePolicy, publishPolicy, getPolicy } from '../services/policy.js';
 import { sendCheckInReceipt } from '../services/email.js';
 import { idLabel, formatIdNumber, maskIdNumber } from '../util/identity.js';
+import { categoryLabel } from '../util/categories.js';
 import { validateFields, str } from '../util/validation.js';
 import config from '../config.js';
 
@@ -38,6 +39,8 @@ function listItem(v) {
     email: v.email,
     hostName: v.host_name,
     hostDepartment: v.host_department,
+    category: v.visitor_category,
+    categoryLabel: categoryLabel(v.visitor_category),
     purpose: v.purpose,
     checkInAt: v.check_in_at,
     checkOutAt: v.check_out_at,
@@ -89,7 +92,7 @@ router.get('/visits.csv', (req, res) => {
     limit: 1000,
   });
   const headers = [
-    'id', 'visitor_name', 'id_type', 'id_number', 'nationality', 'email', 'phone',
+    'id', 'visitor_name', 'visitor_category', 'id_type', 'id_number', 'nationality', 'email', 'phone',
     'host', 'host_department', 'purpose', 'check_in_at', 'check_out_at',
     'status', 'policy_version', 'acknowledged_at', 'receipt_status',
   ];
@@ -100,7 +103,7 @@ router.get('/visits.csv', (req, res) => {
   const lines = [headers.join(',')];
   for (const v of rows) {
     lines.push([
-      v.id, v.visitor_name, v.id_type, formatIdNumber(v.id_type, v.id_number), v.nationality,
+      v.id, v.visitor_name, categoryLabel(v.visitor_category), v.id_type, formatIdNumber(v.id_type, v.id_number), v.nationality,
       v.email, v.phone, v.host_name, v.host_department, v.purpose, v.check_in_at,
       v.check_out_at, v.status, v.policy_version, v.acknowledged_at, v.receipt_status,
     ].map(cell).join(','));

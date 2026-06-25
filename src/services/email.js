@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 import config from '../config.js';
 import { escapeHtml } from '../util/html.js';
 import { formatIdNumber, idLabel } from '../util/identity.js';
+import { categoryLabel } from '../util/categories.js';
 
 let transporter;
 
@@ -46,8 +47,9 @@ function layout({ title, intro, rowsHtml, policyHtml, footerNote }) {
       <p style="color:#6b7280;font-size:13px;margin-bottom:0;">${footerNote || ''}</p>
     </div>
     <div style="padding:16px 24px;color:#9ca3af;font-size:12px;text-align:center;">
-      This is an automated message from ${escapeHtml(config.school.name)} Visitor Hub.
-      For assistance contact <a style="color:#0f766e;" href="mailto:${escapeHtml(config.school.supportEmail)}">${escapeHtml(config.school.supportEmail)}</a>.
+      This is an automated message from ${escapeHtml(config.school.name)} Visitor Hub.${config.school.supportEmail
+        ? ` For assistance contact <a style="color:#0f766e;" href="mailto:${escapeHtml(config.school.supportEmail)}">${escapeHtml(config.school.supportEmail)}</a>.`
+        : ''}
     </div>
   </div>
 </body>
@@ -67,6 +69,7 @@ export function buildReceiptHtml(visit, policy) {
     row('Visitor', visit.visitor_name),
     row(idLabel(visit.id_type), formatIdNumber(visit.id_type, visit.id_number)),
     visit.nationality ? row('Nationality', visit.nationality) : '',
+    visit.visitor_category ? row('Visitor type', categoryLabel(visit.visitor_category)) : '',
     row('Email', visit.email),
     visit.phone ? row('Phone', visit.phone) : '',
     row('Visiting', visit.host_name),

@@ -13,16 +13,28 @@
   const realFetch = window.fetch.bind(window);
 
   const SCHOOL = {
-    schoolName: 'Greenfield International School (Demo)',
+    schoolName: 'American International School in Abu Dhabi (Demo)',
     logoUrl: '',
-    supportEmail: 'reception@example.com',
+    supportEmail: '',
   };
 
+  const CATEGORIES = [
+    { value: 'parent', label: 'Parent' },
+    { value: 'contractor', label: 'Contractor' },
+    { value: 'adek', label: 'ADEK' },
+    { value: 'inspector', label: 'Inspector' },
+    { value: 'other_school', label: 'Visitor from another school' },
+    { value: 'maintenance', label: 'Maintenance' },
+    { value: 'other', label: 'Other' },
+  ];
+  const CATEGORY_VALUES = new Set(CATEGORIES.map((c) => c.value));
+  const categoryLabel = (v) => (CATEGORIES.find((c) => c.value === v) || {}).label || (v || '—');
+
   const POLICY_BODY = `
-<p>The safety and wellbeing of every child is our highest priority. In line with
-the UAE Child Rights Law (Wadeema's Law, Federal Law No. 3 of 2016), which protects
-every child in the UAE, and the safeguarding requirements of our education regulator,
-all visitors, contractors, agency staff and volunteers must read and agree to the
+<p>The safety and wellbeing of every student is our highest priority. In line with
+the Abu Dhabi Department of Education and Knowledge (ADEK) Student Protection Policy
+and the UAE Child Rights Law (Wadeema's Law, Federal Law No. 3 of 2016), all
+visitors, parents, contractors, officials and volunteers must read and agree to the
 following before entering the school.</p>
 <h3>While you are on site, you agree to:</h3>
 <ul>
@@ -95,14 +107,14 @@ abide by this policy for the duration of your visit.</em></p>`.trim();
       visits: [
         {
           id: 1, visitor_name: 'Layla Hassan', id_type: 'emirates_id', id_number: '784198812345673',
-          nationality: null, email: 'layla.hassan@example.com', phone: '0501112222', host_staff_id: 3,
+          nationality: null, visitor_category: 'parent', email: 'layla.hassan@example.com', phone: '0501112222', host_staff_id: 3,
           host_name: 'Ms. Aisha Rahman', host_department: 'Admissions', purpose: 'Admissions tour',
           policy_id: 1, policy_version: 1, acknowledged_at: nowMinus(35), check_in_at: nowMinus(35),
           check_out_at: null, status: 'checked_in', receipt_status: 'preview', receipt_detail: '(demo)', created_at: nowMinus(35),
         },
         {
           id: 2, visitor_name: 'James Carter', id_type: 'passport', id_number: 'P1234567',
-          nationality: 'United Kingdom', email: 'james.carter@example.com', phone: null, host_staff_id: 2,
+          nationality: 'United Kingdom', visitor_category: 'contractor', email: 'james.carter@example.com', phone: null, host_staff_id: 2,
           host_name: 'Mr. Omar Haddad', host_department: 'Principal’s Office', purpose: 'Supplier meeting',
           policy_id: 1, policy_version: 1, acknowledged_at: nowMinus(180), check_in_at: nowMinus(180),
           check_out_at: nowMinus(90), status: 'checked_out', receipt_status: 'preview', receipt_detail: '(demo)', created_at: nowMinus(180),
@@ -127,6 +139,7 @@ abide by this policy for the duration of your visit.</em></p>`.trim();
   function summary(v) {
     return {
       id: v.id, visitorName: v.visitor_name, hostName: v.host_name, purpose: v.purpose,
+      category: v.visitor_category, categoryLabel: categoryLabel(v.visitor_category),
       idType: v.id_type, idLabel: idLabel(v.id_type), idNumber: maskId(v.id_type, v.id_number),
       checkInAt: v.check_in_at, checkOutAt: v.check_out_at, status: v.status, receiptStatus: v.receipt_status,
     };
@@ -135,7 +148,8 @@ abide by this policy for the duration of your visit.</em></p>`.trim();
     return {
       id: v.id, visitorName: v.visitor_name, idType: v.id_type, idLabel: idLabel(v.id_type),
       idNumberMasked: maskId(v.id_type, v.id_number), email: v.email, hostName: v.host_name,
-      hostDepartment: v.host_department, purpose: v.purpose, checkInAt: v.check_in_at,
+      hostDepartment: v.host_department, category: v.visitor_category, categoryLabel: categoryLabel(v.visitor_category),
+      purpose: v.purpose, checkInAt: v.check_in_at,
       checkOutAt: v.check_out_at, status: v.status, receiptStatus: v.receipt_status,
     };
   }
@@ -150,7 +164,7 @@ abide by this policy for the duration of your visit.</em></p>`.trim();
   // ── router ──────────────────────────────────────────────────────────────────
   async function route(method, path, body, query) {
     // public
-    if (method === 'GET' && path === '/api/config') return json(SCHOOL);
+    if (method === 'GET' && path === '/api/config') return json({ ...SCHOOL, categories: CATEGORIES });
     if (method === 'GET' && path === '/api/health') return json({ ok: true });
     if (method === 'GET' && path === '/api/policy') {
       const p = activePolicy();
@@ -207,6 +221,8 @@ abide by this policy for the duration of your visit.</em></p>`.trim();
     }
     const host = activeStaff().find((s) => s.id === Number(b.hostStaffId));
     if (!host) errors.hostStaffId = 'Please choose who you are here to see.';
+    const category = String(b.visitorCategory || '');
+    if (!CATEGORY_VALUES.has(category)) errors.visitorCategory = 'Please select the type of visit.';
     if (b.acknowledged !== true) errors.acknowledged = 'You must acknowledge the safeguarding policy to continue.';
     const policy = activePolicy();
     if (Number(b.policyVersion) !== policy.version) errors.policyVersion = 'The safeguarding policy has been updated. Please review it again.';
@@ -218,7 +234,7 @@ abide by this policy for the duration of your visit.</em></p>`.trim();
     const now = new Date().toISOString();
     const v = {
       id: state.nextVisitId++, visitor_name: name, id_type: type, id_number: idNumber,
-      nationality: String(b.nationality || '').trim() || null, email: email.toLowerCase(),
+      nationality: String(b.nationality || '').trim() || null, visitor_category: category, email: email.toLowerCase(),
       phone: String(b.phone || '').trim() || null, host_staff_id: host.id, host_name: host.name,
       host_department: host.department, purpose: String(b.purpose || '').trim() || null,
       policy_id: policy.id, policy_version: policy.version, acknowledged_at: now, check_in_at: now,
@@ -345,10 +361,10 @@ abide by this policy for the duration of your visit.</em></p>`.trim();
       // Capture-phase handler runs before admin.js's (which navigates to /api/...).
       csv.addEventListener('click', (e) => {
         e.preventDefault(); e.stopImmediatePropagation();
-        const headers = ['id', 'visitor_name', 'id_type', 'id_number', 'nationality', 'email', 'phone', 'host', 'host_department', 'purpose', 'check_in_at', 'check_out_at', 'status', 'policy_version', 'acknowledged_at', 'receipt_status'];
+        const headers = ['id', 'visitor_name', 'visitor_category', 'id_type', 'id_number', 'nationality', 'email', 'phone', 'host', 'host_department', 'purpose', 'check_in_at', 'check_out_at', 'status', 'policy_version', 'acknowledged_at', 'receipt_status'];
         const cell = (val) => { const s = val == null ? '' : String(val); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
         const lines = [headers.join(',')];
-        state.visits.forEach((v) => lines.push([v.id, v.visitor_name, v.id_type, formatId(v.id_type, v.id_number), v.nationality, v.email, v.phone, v.host_name, v.host_department, v.purpose, v.check_in_at, v.check_out_at, v.status, v.policy_version, v.acknowledged_at, v.receipt_status].map(cell).join(',')));
+        state.visits.forEach((v) => lines.push([v.id, v.visitor_name, categoryLabel(v.visitor_category), v.id_type, formatId(v.id_type, v.id_number), v.nationality, v.email, v.phone, v.host_name, v.host_department, v.purpose, v.check_in_at, v.check_out_at, v.status, v.policy_version, v.acknowledged_at, v.receipt_status].map(cell).join(',')));
         const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);

@@ -135,10 +135,11 @@ async function loadOnsite() {
   if (!visits.length) { $('#onsite-table').innerHTML = '<p class="muted">No visitors are currently signed in.</p>'; return; }
   $('#onsite-table').innerHTML = `
     <table><thead><tr>
-      <th>Visitor</th><th>Visiting</th><th>ID</th><th>Checked in</th><th></th>
+      <th>Visitor</th><th>Type</th><th>Visiting</th><th>ID</th><th>Checked in</th><th></th>
     </tr></thead><tbody>
     ${visits.map((v) => `<tr>
       <td><strong>${escapeHtml(v.visitorName)}</strong><br><span class="muted">${escapeHtml(v.email)}</span></td>
+      <td>${escapeHtml(v.categoryLabel || '—')}</td>
       <td>${escapeHtml(v.hostName)}${v.hostDepartment ? '<br><span class="muted">' + escapeHtml(v.hostDepartment) + '</span>' : ''}</td>
       <td>${escapeHtml(v.idLabel)}<br><span class="muted">${escapeHtml(v.idNumberMasked)}</span></td>
       <td>${fmtDateTime(v.checkInAt)}</td>
@@ -173,10 +174,11 @@ async function loadHistory() {
   $('#history-table').innerHTML = `
     <p class="muted">${data.total} result(s)</p>
     <table><thead><tr>
-      <th>Visitor</th><th>Visiting</th><th>ID</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Receipt</th><th></th>
+      <th>Visitor</th><th>Type</th><th>Visiting</th><th>ID</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Receipt</th><th></th>
     </tr></thead><tbody>
     ${visits.map((v) => `<tr>
       <td><strong>${escapeHtml(v.visitorName)}</strong><br><span class="muted">${escapeHtml(v.email)}</span></td>
+      <td>${escapeHtml(v.categoryLabel || '—')}</td>
       <td>${escapeHtml(v.hostName)}</td>
       <td><span class="muted">${escapeHtml(v.idNumberMasked)}</span></td>
       <td>${fmtDateTime(v.checkInAt)}</td>
@@ -215,6 +217,7 @@ async function viewVisit(id, reload) {
   const v = data.visit;
   const rows = [
     ['Visitor', v.visitorName],
+    ['Visitor type', v.categoryLabel],
     [v.idLabel, v.idNumber],
     ['Nationality', v.nationality],
     ['Email', v.email],

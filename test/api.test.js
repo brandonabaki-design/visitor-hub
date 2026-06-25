@@ -67,6 +67,14 @@ test('public: check-in validates input', async () => {
   assert.ok(bad.data.errors.email);
   assert.ok(bad.data.errors.hostStaffId);
   assert.ok(bad.data.errors.acknowledged);
+  assert.ok(bad.data.errors.visitorCategory); // category is required
+
+  // A category outside the allowed set is rejected.
+  const badCat = await req('POST', '/api/checkin', {
+    body: { visitorName: 'X', idType: 'emirates_id', idNumber: '784-1985-1234567-1', email: 'x@y.com', hostStaffId: hostId, visitorCategory: 'astronaut', acknowledged: true, policyVersion },
+  });
+  assert.equal(badCat.status, 400);
+  assert.ok(badCat.data.errors.visitorCategory);
 });
 
 test('public: full check-in then check-out lifecycle', async () => {
@@ -74,16 +82,17 @@ test('public: full check-in then check-out lifecycle', async () => {
     body: {
       visitorName: 'Brandon Abaki', idType: 'emirates_id', idNumber: '784-1985-1234567-1',
       email: 'Brandon.Abaki@Example.com', phone: '0501234567', hostStaffId: hostId,
-      purpose: 'Parent meeting', acknowledged: true, policyVersion,
+      visitorCategory: 'parent', purpose: 'Parent meeting', acknowledged: true, policyVersion,
     },
   });
   assert.equal(checkin.status, 201);
   assert.equal(checkin.data.visit.status, 'checked_in');
+  assert.equal(checkin.data.visit.categoryLabel, 'Parent');
   assert.equal(checkin.data.visit.receiptStatus, 'preview');
 
   // Duplicate while still on site → 409.
   const dup = await req('POST', '/api/checkin', {
-    body: { visitorName: 'Brandon Abaki', idType: 'emirates_id', idNumber: '784198512345671', email: 'b@x.com', hostStaffId: hostId, acknowledged: true, policyVersion },
+    body: { visitorName: 'Brandon Abaki', idType: 'emirates_id', idNumber: '784198512345671', email: 'b@x.com', hostStaffId: hostId, visitorCategory: 'parent', acknowledged: true, policyVersion },
   });
   assert.equal(dup.status, 409);
 
