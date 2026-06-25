@@ -10,6 +10,7 @@ import {
 } from '../services/visits.js';
 import { sendCheckInReceipt, sendCheckOutNotice } from '../services/email.js';
 import { validateIdentity, maskIdNumber, idLabel } from '../util/identity.js';
+import { isValidCategory, categoryLabel } from '../util/categories.js';
 import { validateFields, str } from '../util/validation.js';
 
 const router = Router();
@@ -37,6 +38,8 @@ function visitSummary(visit) {
     visitorName: visit.visitor_name,
     hostName: visit.host_name,
     purpose: visit.purpose,
+    category: visit.visitor_category,
+    categoryLabel: categoryLabel(visit.visitor_category),
     idType: visit.id_type,
     idLabel: idLabel(visit.id_type),
     // Masked for the shared kiosk screen — the visitor entered it themselves.
@@ -84,6 +87,9 @@ router.post('/checkin', async (req, res) => {
   const host = Number.isInteger(hostStaffId) ? getActiveStaff(hostStaffId) : null;
   if (!host) errors.hostStaffId = 'Please choose who you are here to see.';
 
+  const visitorCategory = str(body.visitorCategory);
+  if (!isValidCategory(visitorCategory)) errors.visitorCategory = 'Please select the type of visit.';
+
   if (body.acknowledged !== true) {
     errors.acknowledged = 'You must acknowledge the safeguarding policy to continue.';
   }
@@ -105,6 +111,7 @@ router.post('/checkin', async (req, res) => {
       idType: identity.normalized.idType,
       idNumber: identity.normalized.idNumber,
       nationality: identity.normalized.nationality,
+      visitorCategory,
       email: values.email.toLowerCase(),
       phone: values.phone,
       purpose: values.purpose,

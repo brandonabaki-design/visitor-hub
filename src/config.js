@@ -29,9 +29,9 @@ export const config = {
   host: process.env.HOST || '0.0.0.0',
 
   school: {
-    name: process.env.SCHOOL_NAME || 'Our School',
+    name: process.env.SCHOOL_NAME || 'American International School in Abu Dhabi',
     logoUrl: process.env.SCHOOL_LOGO_URL || '',
-    supportEmail: process.env.SUPPORT_EMAIL || 'reception@example.com',
+    supportEmail: process.env.SUPPORT_EMAIL || '',
   },
 
   databasePath: resolvePath(process.env.DATABASE_PATH, './data/visitor-hub.db'),

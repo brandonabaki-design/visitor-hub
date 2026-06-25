@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS visits (
   phone               TEXT,
   host_staff_id       INTEGER REFERENCES staff(id) ON DELETE SET NULL,
   host_name           TEXT    NOT NULL,          -- snapshot of host name at check-in
+  visitor_category    TEXT,                       -- parent / contractor / adek / inspector / …
   purpose             TEXT,
   policy_id           INTEGER REFERENCES policies(id) ON DELETE SET NULL,
   policy_version      INTEGER NOT NULL,

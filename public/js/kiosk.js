@@ -78,6 +78,11 @@ async function boot() {
     document.title = `${cfg.schoolName} · Visitor Check-in`;
   }
   if (cfg.logoUrl) { const l = $('#logo'); l.src = cfg.logoUrl; l.hidden = false; }
+  if (Array.isArray(cfg.categories)) {
+    $('#visitorCategory').innerHTML =
+      '<option value="" disabled selected>Select…</option>' +
+      cfg.categories.map((c) => `<option value="${escapeHtml(c.value)}">${escapeHtml(c.label)}</option>`).join('');
+  }
 
   // Generic navigation buttons.
   $$('[data-go]').forEach((b) => b.addEventListener('click', () => goTo(b.dataset.go)));
@@ -98,6 +103,7 @@ function startCheckIn() {
   state.details = {}; state.host = null; state.idType = 'emirates_id';
   $('#visitorName').value = ''; $('#idNumber').value = ''; $('#nationality').value = '';
   $('#email').value = ''; $('#phone').value = ''; $('#purpose').value = ''; $('#hostSearch').value = '';
+  $('#visitorCategory').value = '';
   $('#acknowledged').checked = false; $('#ci-submit').disabled = true;
   setIdType('emirates_id');
   clearErrors($('#ci-details'));
@@ -120,6 +126,7 @@ function validateDetails() {
   clearErrors(scope);
   const d = {
     visitorName: $('#visitorName').value.trim(),
+    visitorCategory: $('#visitorCategory').value,
     idType: state.idType,
     idNumber: $('#idNumber').value.trim(),
     nationality: $('#nationality').value.trim(),
@@ -128,6 +135,7 @@ function validateDetails() {
   };
   const errors = {};
   if (!d.visitorName) errors.visitorName = 'Please enter your full name.';
+  if (!d.visitorCategory) errors.visitorCategory = 'Please select the type of visit.';
   if (!d.idNumber) {
     errors.idNumber = state.idType === 'passport' ? 'Please enter your passport number.' : 'Please enter your Emirates ID.';
   } else if (state.idType === 'emirates_id') {
@@ -205,6 +213,7 @@ function wireCheckIn() {
     busy(btn, true);
     const payload = {
       visitorName: state.details.visitorName,
+      visitorCategory: state.details.visitorCategory,
       idType: state.details.idType,
       idNumber: state.details.idNumber,
       nationality: state.details.nationality || undefined,
@@ -235,6 +244,7 @@ function wireCheckIn() {
     $('#ci-done-msg').textContent = data.message || 'You are checked in.';
     summaryRows($('#ci-done-summary'), [
       ['Visitor', v.visitorName],
+      ['Visitor type', v.categoryLabel],
       ['Visiting', v.hostName],
       [v.idLabel, v.idNumber],
       ['Checked in', fmtDateTime(v.checkInAt)],

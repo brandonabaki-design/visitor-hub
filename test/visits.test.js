@@ -28,6 +28,7 @@ function baseInput(overrides = {}) {
     idType: 'emirates_id',
     idNumber: '784198512345671',
     nationality: null,
+    visitorCategory: 'parent',
     email: 'visitor@example.com',
     host,
     policy,
@@ -44,6 +45,7 @@ test('checkIn records a visit with snapshotted host and policy version', () => {
   const v = visits.checkIn(baseInput(), db);
   assert.equal(v.status, 'checked_in');
   assert.equal(v.host_name, host.name);
+  assert.equal(v.visitor_category, 'parent');
   assert.equal(v.policy_version, policy.version);
   assert.equal(v.id_number, '784198512345671');
   assert.ok(v.acknowledged_at);

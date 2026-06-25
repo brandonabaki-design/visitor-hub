@@ -4,6 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import config from './config.js';
+import { VISITOR_CATEGORIES } from './util/categories.js';
 import authRoutes from './routes/auth.js';
 import publicRoutes from './routes/public.js';
 import adminRoutes from './routes/admin.js';
@@ -45,6 +46,7 @@ export function createApp() {
       schoolName: config.school.name,
       logoUrl: config.school.logoUrl,
       supportEmail: config.school.supportEmail,
+      categories: VISITOR_CATEGORIES,
     });
   });
 

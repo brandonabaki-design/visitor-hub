@@ -39,10 +39,10 @@ export function checkIn(input, db = getDb()) {
     .prepare(
       `INSERT INTO visits
         (visitor_name, id_type, id_number, nationality, email, phone, host_staff_id,
-         host_name, purpose, policy_id, policy_version, acknowledged_at, check_in_at, status)
+         host_name, visitor_category, purpose, policy_id, policy_version, acknowledged_at, check_in_at, status)
        VALUES
         (@visitor_name, @id_type, @id_number, @nationality, @email, @phone, @host_staff_id,
-         @host_name, @purpose, @policy_id, @policy_version, @acknowledged_at, @check_in_at, 'checked_in')`,
+         @host_name, @visitor_category, @purpose, @policy_id, @policy_version, @acknowledged_at, @check_in_at, 'checked_in')`,
     )
     .run({
       visitor_name: input.visitorName,
@@ -53,6 +53,7 @@ export function checkIn(input, db = getDb()) {
       phone: input.phone || null,
       host_staff_id: input.host.id,
       host_name: input.host.name,
+      visitor_category: input.visitorCategory || null,
       purpose: input.purpose || null,
       policy_id: input.policy.id,
       policy_version: input.policy.version,
