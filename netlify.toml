@@ -1,0 +1,27 @@
+# Netlify configuration for previewing the Visitor Hub static demo.
+#
+# Each git branch publishes that branch's ./docs folder as its own site, so you
+# can view AISA and ENS at the same time:
+#   - production branch  ->  https://<your-site>.netlify.app/
+#   - branch "AISA"      ->  https://aisa--<your-site>.netlify.app/
+#   - branch "ENS"       ->  https://ens--<your-site>.netlify.app/
+# (The admin dashboard is at /admin/ on each; demo login admin@example.com / changeme123.)
+#
+# After connecting the repo, enable the per-branch URLs:
+#   Site configuration -> Build & deploy -> Continuous deployment
+#     -> Branch deploys -> set to "All" (or list AISA and ENS).
+#
+# NOTE: the demo is a static, browser-only mock (fake data in the browser, no
+# emails). The real backend in /src is a Node app and is NOT what Netlify serves.
+
+[build]
+  # Publish the static demo. No build step is required.
+  publish = "docs"
+
+# A few harmless security headers for the preview.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
